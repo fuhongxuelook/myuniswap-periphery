@@ -14,15 +14,12 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const Obj = await hre.ethers.getContractFactory("UniswapV2Router02");
-  const router = await Obj.deploy(
-	  "0x827c594C5EC58F9390FeFC318252352f9a190973",
-  	  "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd",
-  );
+  const Obj = await hre.ethers.getContractFactory("Multicall");
+  const mc = await Obj.deploy();
 
-  await router.deployed();
+  await mc.deployed();
 
-  console.log("Router02 deployed to:", router.address);
+  console.log("MultiCall deployed to:", mc.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
