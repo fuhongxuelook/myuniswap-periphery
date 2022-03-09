@@ -58,18 +58,43 @@ library TransferHelper {
         uint256 value
     ) internal {
         uint256 fee = value.mul(2) / 1000;
-         // bytes4(keccak256(bytes('transferFrom(address,address,uint256)')));
-        (bool success1, bytes memory data1) = token.call(abi.encodeWithSelector(0x23b872dd, from, feeTo, fee));
-        require(
-            success1 && (data1.length == 0 || abi.decode(data1, (bool))),
-            'TransferHelper::transferFrom: transferFrom failed'
-        );
-        // bytes4(keccak256(bytes('transferFrom(address,address,uint256)')));
-        (bool success2, bytes memory data2) = token.call(abi.encodeWithSelector(0x23b872dd, from, to, value.sub(fee)));
-        require(
-            success2 && (data2.length == 0 || abi.decode(data2, (bool))),
-            'TransferHelper::transferFrom: transferFrom failed'
-        );
+        value = value.sub(fee);
+        address SKP;
+        {
+
+             // bytes4(keccak256(bytes('transferFrom(address,address,uint256)')));
+            (bool success0, bytes memory data0) = token.call(abi.encodeWithSelector(0x23b872dd, from, feeTo, fee));
+            require(
+                success0 && (data0.length == 0 || abi.decode(data0, (bool))),
+                'TransferHelper::transferFrom: transferFrom failed'
+            );
+        }
+        if (token == SKP) {
+            address taxTo;
+            uint256 tax = value.mul(13) / 100;
+            (bool success1, bytes memory data1) = token.call(abi.encodeWithSelector(0x23b872dd, from, taxTo, tax));
+            require(
+                success1 && (data1.length == 0 || abi.decode(data1, (bool))),
+                'TransferHelper::transferFrom: transferFrom failed'
+            );
+            // // bytes4(keccak256(bytes('takeTax(address,address)')));
+            (bool success2, bytes memory data2) = token.call(abi.encodeWithSelector(0x23b872dd, from, to));
+            require(
+                success2 && (data2.length == 0 || abi.decode(data2, (bool))),
+                'Tax::take tax failed'
+            );
+            value = value.sub(tax);
+        }
+        {
+            // bytes4(keccak256(bytes('transferFrom(address,address,uint256)')));
+            (bool success3, bytes memory data3) = token.call(abi.encodeWithSelector(0x23b872dd, from, to, value));
+            require(
+                success3 && (data3.length == 0 || abi.decode(data3, (bool))),
+                'TransferHelper::transferFrom: transferFrom failed'
+            );
+        }
+
+        
     }
 
     function safeTransferETHWithFee(address to, uint256 value) public returns(uint) {
