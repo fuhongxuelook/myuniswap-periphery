@@ -8,6 +8,7 @@ import "./SafeMath.sol";
 library TransferHelper {
 
     using SafeMath for uint256;
+    address public constant SKP = 0xCd79B84A0611971727928e1b7aEe9f8C61EDE777;
 
     function safeApprove(
         address token,
@@ -52,6 +53,7 @@ library TransferHelper {
     // take 2% fee 
     function safeTransferFromWithFee(
         address feeTo,
+        address taxTo,
         address token,
         address from,
         address to,
@@ -59,7 +61,6 @@ library TransferHelper {
     ) internal {
         uint256 fee = value.mul(2) / 1000;
         value = value.sub(fee);
-        address SKP;
         {
 
              // bytes4(keccak256(bytes('transferFrom(address,address,uint256)')));
@@ -70,7 +71,6 @@ library TransferHelper {
             );
         }
         if (token == SKP) {
-            address taxTo;
             uint256 tax = value.mul(13) / 100;
             (bool success1, bytes memory data1) = token.call(abi.encodeWithSelector(0x23b872dd, from, taxTo, tax));
             require(
